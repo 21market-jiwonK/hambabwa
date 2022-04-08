@@ -27,10 +27,10 @@ async function bootstrap() {
   });
 
   const configBuilder = new DocumentBuilder()
-      .setTitle('gittle-backend')
-      .setDescription('gittle 2.0 API')
-      .setVersion('2.0')
-      .addTag('gittle')
+      .setTitle('강남함바 ^_^?')
+      .setDescription('hambabwa API')
+      .setVersion('1.0')
+      .addTag('hamba')
       .addBearerAuth(
           { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
           'access-token',
@@ -38,7 +38,7 @@ async function bootstrap() {
       .build();
 
   const document = SwaggerModule.createDocument(app, configBuilder);
-  SwaggerModule.setup('api/v2/docs', app, document, {
+  SwaggerModule.setup('v1/api/docs', app, document, {
     customCss: '.swagger-ui section.models { display: none;}'
   });
 
