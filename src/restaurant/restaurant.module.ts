@@ -4,10 +4,11 @@ import { RestaurantController } from './restaurant.controller';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {Restaurant} from "./entities/restaurant.entity";
 import {HttpModule} from "@nestjs/axios";
+import {Menu} from "../menu/entities/menu.entity";
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([Restaurant]),
+      TypeOrmModule.forFeature([Restaurant, Menu]),
       HttpModule
   ],
   controllers: [RestaurantController],

@@ -8,7 +8,7 @@ import {CommonResponse} from "../common/common.response";
 import {DeleteResult, UpdateResult} from "typeorm";
 
 @Controller('restaurant')
-@ApiTags('restaurant CRUD API')
+@ApiTags('restaurant CRUD Api')
 export class RestaurantController {
   constructor(
       private readonly restaurantService: RestaurantService
@@ -36,8 +36,8 @@ export class RestaurantController {
   async findOne(
       @Param('id') id: number
   ) {
-    const restaurant: Restaurant = await this.restaurantService.findOne(id);
-    return new CommonResponse(HttpStatus.OK, restaurant);
+    const menuWithRestaurant: Restaurant = await this.restaurantService.findOne(id);
+    return new CommonResponse(HttpStatus.OK, menuWithRestaurant);
   }
 
   @Patch(':id')
