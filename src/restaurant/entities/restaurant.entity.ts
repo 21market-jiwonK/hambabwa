@@ -10,7 +10,7 @@ export class Restaurant extends BaseEntity {
     @Column()
     public name: string;
 
-    @Column()
+    @Column('text')
     public detail: string;
 
     @Column()
@@ -19,9 +19,12 @@ export class Restaurant extends BaseEntity {
     @Column()
     public addr2: string;
 
-    @Column({type: 'decimal', nullable: true})
+    @Column({type: 'double', nullable: true})
     public lat: number;
 
-    @Column({type: 'decimal', nullable: true})
+    @Column({type: 'double', nullable: true})
     public lng: number;
+
+    @Column({nullable: true})
+    public imageUrl: string;
 }

@@ -10,6 +10,7 @@ import {firstValueFrom} from "rxjs";
 import {AxiosResponse} from "axios";
 import * as moment from "moment";
 import {Menu} from "../menu/entities/menu.entity";
+import {CommonService} from "../common/common.service";
 
 @Injectable()
 export class RestaurantService {
@@ -19,15 +20,18 @@ export class RestaurantService {
       @InjectRepository(Menu)
       private readonly menuRepository: Repository<Menu>,
       private readonly httpService: HttpService,
-      private readonly configService: ConfigService
+      private readonly configService: ConfigService,
+      private readonly commonService: CommonService
   ) {}
 
-  async create(adminInput: CreateRestaurantDto): Promise<Restaurant> {
+  async create(adminInput: CreateRestaurantDto, image: Express.Multer.File): Promise<Restaurant> {
     const { addr1, addr2 } = adminInput;
+    const { Key } = await this.commonService.uploadFile(image, 'restaurant');
     const { data } = await this.getLatLngByAddr(addr1 + ' ' + addr2);
     const newRestaurant: Restaurant = this.restaurantRepository.create({...adminInput,
       lat: data.documents[0].y,
-      lng: data.documents[0].x
+      lng: data.documents[0].x,
+      imageUrl: this.configService.get('AWS_S3_IMAGE_URL') + Key
     });
 
     await this.restaurantRepository.save(newRestaurant);

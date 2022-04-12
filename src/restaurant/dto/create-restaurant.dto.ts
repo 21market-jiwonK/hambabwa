@@ -25,6 +25,13 @@ export class CreateRestaurantDto {
     })
     public addr2: string;
 
+    @ApiProperty({
+        type: 'string',
+        format: 'binary',
+        description: '식당 대표사진'
+    })
+    public imageUrl: string;
+
     public lat: number;
     public lng: number;
 }

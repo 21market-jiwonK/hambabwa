@@ -9,6 +9,15 @@ export class CommonService {
        private readonly configService: ConfigService
     ) {}
 
+    async uploadFile(file: Express.Multer.File, path: string) {
+        const s3 = new S3();
+        return await s3.upload({
+            Bucket: this.configService.get('AWS_S3_IMAGE'),
+            Body: file.buffer,
+            Key: `${path}/${uuid()}`
+        }).promise();
+    }
+
     async uploadFiles(files: Express.Multer.File[], path: string) {
         const s3 = new S3();
         let result = [];

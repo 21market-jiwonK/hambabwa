@@ -1,11 +1,23 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  UseInterceptors,
+  UploadedFile
+} from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import {ApiCreatedResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
+import {ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
 import {Restaurant} from "./entities/restaurant.entity";
 import {CommonResponse} from "../common/common.response";
 import {DeleteResult, UpdateResult} from "typeorm";
+import {FileInterceptor} from "@nestjs/platform-express";
 
 @Controller('restaurant')
 @ApiTags('restaurant CRUD Api')
@@ -15,12 +27,15 @@ export class RestaurantController {
   ) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('imageUrl'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({summary: '식당을 생성한다.'})
   @ApiCreatedResponse({description: '생성 결과', type: Restaurant})
   async create(
-      @Body() adminInput: CreateRestaurantDto
+      @Body() adminInput: CreateRestaurantDto,
+      @UploadedFile() image: Express.Multer.File
   ) {
-    const newRestaurant: Restaurant = await this.restaurantService.create(adminInput);
+    const newRestaurant: Restaurant = await this.restaurantService.create(adminInput, image);
     return new CommonResponse(HttpStatus.CREATED, newRestaurant);
   }
 
