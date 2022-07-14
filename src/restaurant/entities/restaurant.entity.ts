@@ -1,11 +1,11 @@
 import {Column, Entity, OneToMany} from "typeorm";
 import {BaseEntity} from "../../database/base-entity";
-import {Menu} from "../../menu/entities/menu.entity";
+import {Lunch} from "../../lunch/entities/lunch.entity";
 
 @Entity()
 export class Restaurant extends BaseEntity {
-    @OneToMany(() => Menu, (menu: Menu) => menu.restaurant)
-    public menus: Menu[];
+    @OneToMany(() => Lunch, (lunch: Lunch) => lunch.restaurant)
+    public lunchHistories: Lunch[];
 
     @Column()
     public name: string;

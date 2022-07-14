@@ -1,35 +1,17 @@
-import {Column, JoinColumn, Entity, ManyToOne, PrimaryColumn} from "typeorm";
-import {DietType} from "../diet.type.enum";
-import {Restaurant} from "../../restaurant/entities/restaurant.entity";
+import {BaseEntity} from "../../database/base-entity";
+import {Column, Entity, JoinColumn, OneToOne} from "typeorm";
+import {Category} from "../../category/entities/category.entity";
 
 @Entity()
-export class Menu {
-
-    @ManyToOne(() => Restaurant, (restaurant: Restaurant) => restaurant.menus, { primary: true })
-    @JoinColumn()
-    public restaurant: Restaurant;
-
-    @PrimaryColumn('date')
-    public servingDate: Date;
-
-    @PrimaryColumn({ type: "enum", enum: DietType })
-    public dietType: DietType;
+export class Menu extends BaseEntity {
+    @Column()
+    public foodCode: string;
 
     @Column()
-    public title: string;
+    public foodTitle: string;
 
-    @Column({ nullable: true })
-    public detail: string;
+    @OneToOne(() => Category, (category: Category) => category.menu)
+    @JoinColumn()
+    public category: Category;
 
-    @Column({ nullable: true })
-    public image1: string;
-
-    @Column({ nullable: true })
-    public image2: string;
-
-    @Column({ nullable: true })
-    public image3: string;
-
-    @Column({ nullable: true })
-    public image4: string;
 }

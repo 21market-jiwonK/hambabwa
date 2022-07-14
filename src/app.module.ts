@@ -5,7 +5,9 @@ import { AppService } from './app.service';
 import {ConfigModule} from "@nestjs/config";
 import { RestaurantModule } from './restaurant/restaurant.module';
 import {DatabaseModule} from "./database/database.module";
+import { LunchModule } from './lunch/lunch.module';
 import { MenuModule } from './menu/menu.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -23,7 +25,9 @@ import { MenuModule } from './menu/menu.module';
     }),
     DatabaseModule,
     RestaurantModule,
-    MenuModule
+    LunchModule,
+    MenuModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
