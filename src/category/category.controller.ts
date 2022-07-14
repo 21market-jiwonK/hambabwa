@@ -27,14 +27,14 @@ export class CategoryController {
     return await this.categoryService.createByExcel(file);
   }
 
-  @Get()
+  @Get('list')
   findAll() {
     return this.categoryService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  @Get(':code')
+  findOne(@Param('code') code: string) {
+    return this.categoryService.findOne(code);
   }
 
   @Patch(':id')

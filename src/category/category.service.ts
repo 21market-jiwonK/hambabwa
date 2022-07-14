@@ -5,14 +5,14 @@ import {CreateCategoryExcelDto} from "./dto/create-category-excel.dto";
 import {CommonService} from "../common/common.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Category} from "./entities/category.entity";
-import {Repository} from "typeorm";
+import {TreeRepository} from "typeorm";
 
 @Injectable()
 export class CategoryService {
   constructor(
     private readonly commonService: CommonService,
     @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
+    private readonly categoryRepository: TreeRepository<Category>,
   ) {}
   create(createCategoryDto: CreateCategoryDto) {
     return 'This action adds a new category';
@@ -40,12 +40,15 @@ export class CategoryService {
     await this.categoryRepository.save(insertRows);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll() {
+    return await this.categoryRepository.findTrees();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(code: string) {
+    return await this.categoryRepository.findOne({
+      relations: ['parent', 'children'],
+      where: { code }
+    });
   }
 
   update(id: number, updateCategoryDto: UpdateCategoryDto) {
