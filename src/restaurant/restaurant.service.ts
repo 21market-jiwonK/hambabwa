@@ -25,10 +25,15 @@ export class RestaurantService {
   ) {}
 
   async create(adminInput: CreateRestaurantDto, image: Express.Multer.File): Promise<Restaurant> {
-    const { addr1, addr2 } = adminInput;
+    const { addr1, addr2, name, detail, lunchPrice } = adminInput;
     const { Key } = await this.commonService.uploadFile(image, 'restaurant');
     const { data } = await this.getLatLngByAddr(addr1 + ' ' + addr2);
-    const newRestaurant: Restaurant = this.restaurantRepository.create({...adminInput,
+    const newRestaurant: Restaurant = this.restaurantRepository.create({
+      addr1,
+      addr2,
+      name,
+      detail,
+      lunchPrice,
       lat: data.documents[0].y,
       lng: data.documents[0].x,
       imageUrl: this.configService.get('AWS_S3_IMAGE_URL') + Key
@@ -50,7 +55,9 @@ export class RestaurantService {
   }
 
   async findAll(): Promise<Restaurant[]> {
-    return await this.restaurantRepository.find();
+    return await this.restaurantRepository.createQueryBuilder('restaurant')
+        .leftJoinAndSelect('restaurant.menus', 'menu')
+        .getMany()
   }
 
   async findOne(id: number): Promise<Restaurant> {

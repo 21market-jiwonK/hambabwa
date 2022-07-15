@@ -1,11 +1,14 @@
 import {Column, Entity, OneToMany} from "typeorm";
 import {BaseEntity} from "../../database/base-entity";
-import {Lunch} from "../../lunch/entities/lunch.entity";
+import {Menu} from "../../menu/entities/menu.entity";
 
 @Entity()
 export class Restaurant extends BaseEntity {
-    @OneToMany(() => Lunch, (lunch: Lunch) => lunch.restaurant)
-    public lunchHistories: Lunch[];
+    @OneToMany(() => Menu, (menu: Menu) => menu.restaurant, {
+        cascade: true,
+        onUpdate: "CASCADE"
+    })
+    public menus: Menu[];
 
     @Column()
     public name: string;
@@ -27,4 +30,7 @@ export class Restaurant extends BaseEntity {
 
     @Column({nullable: true})
     public imageUrl: string;
+
+    @Column()
+    public lunchPrice: number;
 }

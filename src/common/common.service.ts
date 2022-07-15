@@ -3,6 +3,7 @@ import {ConfigService} from "@nestjs/config";
 import { S3 } from "aws-sdk";
 import { v4 as uuid } from "uuid";
 import * as XLSX from "xlsx";
+import {extname} from "path";
 
 @Injectable()
 export class CommonService {
@@ -15,7 +16,8 @@ export class CommonService {
         return await s3.upload({
             Bucket: this.configService.get('AWS_S3_IMAGE'),
             Body: file.buffer,
-            Key: `${path}/${uuid()}`
+            ContentType: file.mimetype,
+            Key: `${this.configService.get('AWS_S3_REPOSITORY')}/${path}/${uuid()}${extname(file.originalname)}`
         }).promise();
     }
 

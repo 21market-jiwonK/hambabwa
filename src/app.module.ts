@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import {ConfigModule} from "@nestjs/config";
 import { RestaurantModule } from './restaurant/restaurant.module';
 import {DatabaseModule} from "./database/database.module";
-import { LunchModule } from './lunch/lunch.module';
 import { MenuModule } from './menu/menu.module';
 import { CategoryModule } from './category/category.module';
 
@@ -25,7 +24,6 @@ import { CategoryModule } from './category/category.module';
     }),
     DatabaseModule,
     RestaurantModule,
-    LunchModule,
     MenuModule,
     CategoryModule,
   ],

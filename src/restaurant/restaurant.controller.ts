@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpStatus,
   UseInterceptors,
   UploadedFile
 } from '@nestjs/common';
@@ -15,60 +14,62 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import {ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
 import {Restaurant} from "./entities/restaurant.entity";
-import {CommonResponse} from "../common/common.response";
 import {DeleteResult, UpdateResult} from "typeorm";
 import {FileInterceptor} from "@nestjs/platform-express";
 
 @Controller('restaurant')
-@ApiTags('restaurant CRUD Api')
+@ApiTags('Restaurant CRUD Api')
 export class RestaurantController {
   constructor(
       private readonly restaurantService: RestaurantService
   ) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('imageUrl'))
+  @UseInterceptors(FileInterceptor('_imageUrl'))
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({summary: '식당을 생성한다.'})
-  @ApiCreatedResponse({description: '생성 결과', type: Restaurant})
+  @ApiOperation({ summary: '식당 생성 API', description: '식당을 생성 한다.' })
+  @ApiCreatedResponse({description: '생성 결과'})
   async create(
-      @Body() adminInput: CreateRestaurantDto,
-      @UploadedFile() image: Express.Multer.File
-  ) {
-    const newRestaurant: Restaurant = await this.restaurantService.create(adminInput, image);
-    return new CommonResponse(HttpStatus.CREATED, newRestaurant);
+    @Body() adminInput: CreateRestaurantDto,
+    @UploadedFile() image: Express.Multer.File
+  ): Promise<Restaurant> {
+    return await this.restaurantService.create(adminInput, image);
   }
 
   @Get()
-  @ApiOperation({summary: '식당 목록을 조회한다.'})
+  @ApiOperation({ summary: '식당 목록을 조회 API', description: '식당 목록을 조회한다.' })
   @ApiCreatedResponse({description: '목록 조회 결과', type: Restaurant, isArray: true})
-  async findAll() {
-    const lists: Restaurant[] = await this.restaurantService.findAll();
-    return new CommonResponse(HttpStatus.OK, lists);
+  async findAll(): Promise<Restaurant[]> {
+    return await this.restaurantService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({summary: '식당 상세 정보를 조회한다.'})
+  @ApiCreatedResponse({ description: '조회 결과', type: Restaurant })
   async findOne(
-      @Param('id') id: number
-  ) {
-    const menuWithRestaurant: Restaurant = await this.restaurantService.findOne(id);
-    return new CommonResponse(HttpStatus.OK, menuWithRestaurant);
+    @Param('id') id: number
+  ): Promise<Restaurant> {
+    return await this.restaurantService.findOne(id);
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: '식당 수정 API', description: '식당 상세 정보를 수정 한다.' })
+  @ApiCreatedResponse({description: '업로드 결과'})
   async update(
-      @Param('id') id: number,
-      @Body() updateInput: UpdateRestaurantDto
-  ) {
-    const result: UpdateResult = await this.restaurantService.update(id, updateInput);
-    return new CommonResponse(HttpStatus.OK, result);
+    @Param('id') id: number,
+    @Body() updateInput: UpdateRestaurantDto
+  ): Promise<UpdateResult> {
+    return await this.restaurantService.update(id, updateInput);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: '식당 삭제 API', description: '식당 상세 정보를 삭제 한다.' })
+  @ApiCreatedResponse({description: '삭제 결과'})
   async remove(
-      @Param('id') id: number
-  ) {
-    const result: DeleteResult = await this.restaurantService.remove(id);
-    return new CommonResponse(HttpStatus.OK, result);
+    @Param('id') id: number
+  ): Promise<DeleteResult> {
+    return await this.restaurantService.remove(id);
   }
 }
