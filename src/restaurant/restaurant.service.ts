@@ -1,14 +1,13 @@
 import {Injectable} from '@nestjs/common';
 import {CreateRestaurantDto} from './dto/create-restaurant.dto';
 import {UpdateRestaurantDto} from './dto/update-restaurant.dto';
-import {DeleteResult, Repository, UpdateResult} from "typeorm";
+import {DeleteResult, Repository} from "typeorm";
 import {Restaurant} from "./entities/restaurant.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {HttpService} from "@nestjs/axios";
 import {ConfigService} from "@nestjs/config";
 import {firstValueFrom} from "rxjs";
 import {AxiosResponse} from "axios";
-import * as moment from "moment";
 import {Menu} from "../menu/entities/menu.entity";
 import {CommonService} from "../common/common.service";
 
@@ -61,16 +60,29 @@ export class RestaurantService {
   }
 
   async findOne(id: number): Promise<Restaurant> {
-    const today = moment().format('YYYY-MM-DD');
     return await this.restaurantRepository.createQueryBuilder('restaurant')
         .leftJoinAndSelect('restaurant.menus', 'menu')
         .where('restaurant.id = :id', {id})
-        .andWhere('menu.servingDate = :date', { date: today })
         .getOne()
   }
 
-  async update(id: number, adminInput: UpdateRestaurantDto): Promise<UpdateResult> {
-    return await this.restaurantRepository.update(id, adminInput);
+  async update(id: number, { menuIds, ...adminInput }: UpdateRestaurantDto, file: Express.Multer.File): Promise<Restaurant> {
+    const restaurant = this.restaurantRepository.create({id});
+    Object.keys(adminInput).forEach(key => {
+      if (adminInput[key]) {
+        restaurant[key] = adminInput[key];
+      }
+    });
+    if (file) {
+      const { Key } = await this.commonService.uploadFile(file, 'restaurant');
+      restaurant.imageUrl = this.configService.get('AWS_S3_IMAGE_URL') + Key;
+    }
+    if (menuIds.length) {
+      restaurant.menus = menuIds.map(menuId => this.menuRepository.create({
+        id: menuId
+      }));
+    }
+    return await this.restaurantRepository.save(restaurant);
   }
 
   async remove(id: number): Promise<DeleteResult> {

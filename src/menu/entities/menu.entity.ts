@@ -31,7 +31,10 @@ export class Menu extends BaseEntity {
     })
     public calorie: string;
 
-    @Column()
+    @Column({
+        type: 'varchar',
+        length: 500
+    })
     public imageUrl: string;
 
 }

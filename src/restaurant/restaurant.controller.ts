@@ -14,7 +14,7 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import {ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
 import {Restaurant} from "./entities/restaurant.entity";
-import {DeleteResult, UpdateResult} from "typeorm";
+import {DeleteResult} from "typeorm";
 import {FileInterceptor} from "@nestjs/platform-express";
 
 @Controller('restaurant')
@@ -44,7 +44,7 @@ export class RestaurantController {
   }
 
   @Get(':id')
-  @ApiOperation({summary: '식당 상세 정보를 조회한다.'})
+  @ApiOperation({summary: '식당 상세 정보 조회 API', description: '식당 상세 정보를 조회한다.'})
   @ApiCreatedResponse({ description: '조회 결과', type: Restaurant })
   async findOne(
     @Param('id') id: number
@@ -53,15 +53,16 @@ export class RestaurantController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('_imageUrl'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '식당 수정 API', description: '식당 상세 정보를 수정 한다.' })
   @ApiCreatedResponse({description: '업로드 결과'})
   async update(
     @Param('id') id: number,
-    @Body() updateInput: UpdateRestaurantDto
-  ): Promise<UpdateResult> {
-    return await this.restaurantService.update(id, updateInput);
+    @Body() updateInput: UpdateRestaurantDto,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<Restaurant> {
+    return await this.restaurantService.update(id, updateInput, file);
   }
 
   @Delete(':id')
