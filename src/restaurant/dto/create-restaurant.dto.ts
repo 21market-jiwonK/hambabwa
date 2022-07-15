@@ -1,4 +1,6 @@
 import {ApiProperty} from "@nestjs/swagger";
+import {Transform} from "class-transformer";
+import {IsNumber} from "class-validator";
 
 export class CreateRestaurantDto {
     @ApiProperty({
@@ -37,9 +39,27 @@ export class CreateRestaurantDto {
         example: 8000
     })
     private _lunchPrice: number;
+
+    @Transform(({ value }) => value.split(',').map(val => Number(val)))
+    @IsNumber({}, {each: true})
+    @ApiProperty({
+        type: 'string',
+        description: 'menu 고유 ids',
+        example: '1,2,3,4,5',
+        required: false,
+    })
+    private _menuIds: number[];
+
     private _lat: number;
     private _lng: number;
 
+    get menuIds(): number[] {
+        return this._menuIds;
+    }
+
+    set menuIds(value: number[]) {
+        this._menuIds = value;
+    }
 
     get name(): string {
         return this._name;
