@@ -52,17 +52,19 @@ export class RestaurantService {
     return firstValueFrom(await this.httpService.get(url,{headers}));
   }
 
-  async findAll() {
+  async findAll(): Promise<Restaurant[]> {
     return await this.restaurantRepository.createQueryBuilder('restaurant')
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
-        .innerJoinAndMapOne('menus', 'v_menu_with_categories', 'menus', 'view.menuId = menus.menuId')
-        .getMany()
+        .innerJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory', 'menusWithCategory.menuId = menus.menuId')
+        .getMany();
   }
 
   async findOne(id: number): Promise<Restaurant> {
     return await this.restaurantRepository.createQueryBuilder('restaurant')
-        .leftJoinAndSelect('restaurant.menus', 'menu')
+        .distinct(true)
+        .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
+        .innerJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory', 'menusWithCategory.menuId = menus.menuId')
         .where('restaurant.id = :id', {id})
         .getOne()
   }
