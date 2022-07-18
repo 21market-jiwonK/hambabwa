@@ -4,6 +4,7 @@ import {ViewColumn, ViewEntity} from "typeorm";
     expression: `
         SELECT M.id AS menuId
             , M.foodTitle AS title
+            , M.imageUrl AS menuImage
             , C2.title AS subTitle
             , M.calorie AS calorie
             , C3.title AS categoryDepth1
@@ -23,6 +24,9 @@ export class ViewMenuWithCategories {
 
     @ViewColumn()
     title: number;
+
+    @ViewColumn()
+    menuImage: number;
 
     @ViewColumn()
     subTitle: number;
