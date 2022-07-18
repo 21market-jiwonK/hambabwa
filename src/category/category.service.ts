@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
 import {CreateCategoryExcelDto} from "./dto/create-category-excel.dto";
 import {CommonService} from "../common/common.service";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -14,15 +12,12 @@ export class CategoryService {
     @InjectRepository(Category)
     private readonly categoryRepository: TreeRepository<Category>,
   ) {}
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
-  }
 
   async createByExcel(file: Express.Multer.File) {
     const rows: CreateCategoryExcelDto[] = this.commonService.uploadExcel(file);
     let insertRows: Category[] = [];
     for (const row of rows) {
-      const { code, title, parent } = row;
+      const { code, title } = row;
       const children = rows
           .filter(row => row.parent === code)
           .map(row => this.categoryRepository.create({
@@ -49,13 +44,5 @@ export class CategoryService {
       relations: ['parent', 'children'],
       where: { code }
     });
-  }
-
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} category`;
   }
 }

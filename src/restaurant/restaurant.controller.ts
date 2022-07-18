@@ -39,7 +39,7 @@ export class RestaurantController {
   @Get()
   @ApiOperation({ summary: '식당 목록을 조회 API', description: '식당 목록을 조회한다.' })
   @ApiCreatedResponse({description: '목록 조회 결과', type: Restaurant, isArray: true})
-  async findAll(): Promise<Restaurant[]> {
+  async findAll() {
     return await this.restaurantService.findAll();
   }
 

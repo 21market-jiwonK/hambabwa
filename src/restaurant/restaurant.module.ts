@@ -6,10 +6,15 @@ import {Restaurant} from "./entities/restaurant.entity";
 import {HttpModule} from "@nestjs/axios";
 import {Menu} from "../menu/entities/menu.entity";
 import {CommonModule} from "../common/common.module";
+import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([Restaurant, Menu]),
+      TypeOrmModule.forFeature([
+          Restaurant,
+          Menu,
+          ViewMenuWithCategories,
+      ]),
       HttpModule,
       CommonModule
   ],

@@ -1,13 +1,13 @@
-import {Column, Entity, OneToMany} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany} from "typeorm";
 import {BaseEntity} from "../../database/base-entity";
 import {Menu} from "../../menu/entities/menu.entity";
 
 @Entity()
 export class Restaurant extends BaseEntity {
-    @OneToMany(() => Menu, (menu: Menu) => menu.restaurant, {
-        cascade: true,
-        onUpdate: "CASCADE"
+    @ManyToMany(() => Menu, (menus: Menu) => menus.restaurants, {
+        cascade: true
     })
+    @JoinTable({name: 'restaurants_menus'})
     public menus: Menu[];
 
     @Column()

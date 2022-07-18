@@ -1,15 +1,14 @@
 import {BaseEntity} from "../../database/base-entity";
-import {Column, Entity, JoinColumn, ManyToOne, OneToOne} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToMany, ManyToOne} from "typeorm";
 import {Category} from "../../category/entities/category.entity";
 import {Restaurant} from "../../restaurant/entities/restaurant.entity";
 
 @Entity()
 export class Menu extends BaseEntity {
-    @ManyToOne(() => Restaurant, (restaurant: Restaurant) => restaurant.menus)
-    @JoinColumn()
-    public restaurant: Restaurant;
+    @ManyToMany(() => Restaurant, (restaurants: Restaurant) => restaurants.menus)
+    public restaurants: Restaurant[];
 
-    @OneToOne(() => Category, (category: Category) => category.menu)
+    @ManyToOne(() => Category, (category: Category) => category.menus)
     @JoinColumn()
     public category: Category;
 

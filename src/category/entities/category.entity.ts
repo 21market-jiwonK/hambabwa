@@ -1,11 +1,11 @@
-import {Column, Entity, Index, OneToOne, PrimaryColumn, Tree, TreeChildren, TreeParent} from "typeorm";
+import {Column, Entity, Index, OneToMany, PrimaryColumn, Tree, TreeChildren, TreeParent} from "typeorm";
 import {Menu} from "../../menu/entities/menu.entity";
 
 @Entity()
 @Tree("materialized-path")
 export class Category {
-    @OneToOne(() => Menu, (menu: Menu) => menu.category)
-    menu: Menu;
+    @OneToMany(() => Menu, (menus: Menu) => menus.category)
+    menus: Menu[];
 
     @PrimaryColumn('varchar', {length: 20})
     @Index({ unique: true })

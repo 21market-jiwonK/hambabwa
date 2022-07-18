@@ -10,6 +10,7 @@ import {firstValueFrom} from "rxjs";
 import {AxiosResponse} from "axios";
 import {Menu} from "../menu/entities/menu.entity";
 import {CommonService} from "../common/common.service";
+import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
 
 @Injectable()
 export class RestaurantService {
@@ -18,21 +19,19 @@ export class RestaurantService {
       private readonly restaurantRepository: Repository<Restaurant>,
       @InjectRepository(Menu)
       private readonly menuRepository: Repository<Menu>,
+      @InjectRepository(ViewMenuWithCategories)
+      private readonly viewMenuCategoryRepository: Repository<ViewMenuWithCategories>,
       private readonly httpService: HttpService,
       private readonly configService: ConfigService,
       private readonly commonService: CommonService
   ) {}
 
   async create(adminInput: CreateRestaurantDto, image: Express.Multer.File): Promise<Restaurant> {
-    const { addr1, addr2, name, detail, lunchPrice } = adminInput;
+    const { addr1, addr2 } = adminInput;
     const { Key } = await this.commonService.uploadFile(image, 'restaurant');
     const { data } = await this.getLatLngByAddr(addr1 + ' ' + addr2);
     const newRestaurant: Restaurant = this.restaurantRepository.create({
-      addr1,
-      addr2,
-      name,
-      detail,
-      lunchPrice,
+      ...adminInput,
       lat: data.documents[0].y,
       lng: data.documents[0].x,
       imageUrl: this.configService.get('AWS_S3_IMAGE_URL') + Key
@@ -53,9 +52,11 @@ export class RestaurantService {
     return firstValueFrom(await this.httpService.get(url,{headers}));
   }
 
-  async findAll(): Promise<Restaurant[]> {
+  async findAll() {
     return await this.restaurantRepository.createQueryBuilder('restaurant')
-        .leftJoinAndSelect('restaurant.menus', 'menu')
+        .distinct(true)
+        .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
+        .innerJoinAndMapOne('menus', 'v_menu_with_categories', 'menus', 'view.menuId = menus.menuId')
         .getMany()
   }
 
@@ -67,6 +68,7 @@ export class RestaurantService {
   }
 
   async update(id: number, { menuIds, ...adminInput }: UpdateRestaurantDto, file: Express.Multer.File): Promise<Restaurant> {
+    console.log(menuIds);
     const restaurant = this.restaurantRepository.create({id});
     Object.keys(adminInput).forEach(key => {
       if (adminInput[key]) {
