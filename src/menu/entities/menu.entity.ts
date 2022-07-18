@@ -32,6 +32,8 @@ export class Menu extends BaseEntity {
     public calorie: string;
 
     @Column({
+        nullable: true,
+        default: null,
         type: 'varchar',
         length: 500
     })
