@@ -62,7 +62,7 @@ export class MenuService {
         .where("LEFT(menu.categoryCode, 5) = :code", { code })
         .getMany();
       const menuIds = menus.map((menu) => menu.id);
-      this.menuRepository.update(menuIds, { imageUrl: url });
+      await this.menuRepository.update(menuIds, { imageUrl: url });
     }
     return;
   }

@@ -11,6 +11,9 @@ import {AxiosResponse} from "axios";
 import {Menu} from "../menu/entities/menu.entity";
 import {CommonService} from "../common/common.service";
 import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
+import {Comment} from "./entities/comment.entity";
+import {CreateCommentDto} from "./dto/create-comment.dto";
+import {UpdateCommentDto} from "./dto/update-comment.dto";
 
 @Injectable()
 export class RestaurantService {
@@ -21,6 +24,8 @@ export class RestaurantService {
       private readonly menuRepository: Repository<Menu>,
       @InjectRepository(ViewMenuWithCategories)
       private readonly viewMenuCategoryRepository: Repository<ViewMenuWithCategories>,
+      @InjectRepository(Comment)
+      private readonly commentRepository: Repository<Comment>,
       private readonly httpService: HttpService,
       private readonly configService: ConfigService,
       private readonly commonService: CommonService
@@ -60,10 +65,11 @@ export class RestaurantService {
         .getMany();
   }
 
-  async findOne(id: number): Promise<Restaurant> {
+  async findOne(id: number) {
     return await this.restaurantRepository.createQueryBuilder('restaurant')
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
+        .leftJoinAndSelect('restaurant.comments', 'comment')
         .innerJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory', 'menusWithCategory.menuId = menus.menuId')
         .where('restaurant.id = :id', {id})
         .getOne()
@@ -91,5 +97,37 @@ export class RestaurantService {
 
   async remove(id: number): Promise<DeleteResult> {
     return await this.restaurantRepository.delete(id);
+  }
+
+  async createComment({ restaurantId, ...userInput }: CreateCommentDto):Promise<Comment> {
+    const newComment = await this.commentRepository.create({
+      ...userInput,
+      restaurant: { id: restaurantId }
+    });
+    await this.commentRepository.save(newComment);
+
+    const { comments } = await this.findOne(restaurantId);
+    const avgStars = this.calculateStars(comments);
+    await this.restaurantRepository.update(restaurantId, {stars: avgStars});
+    return newComment;
+  }
+
+  calculateStars(comments: Comment[]) {
+    const starsSum = comments
+        .map(({stars}) => stars)
+        .reduce((sum, curVal) => sum + curVal);
+    return starsSum / comments.length;
+  }
+
+  async updateComment(id: number, { restaurantId, ...userInput }: UpdateCommentDto): Promise<Comment> {
+    const newComment = await this.commentRepository.create({
+      id,
+      ...userInput,
+    });
+    return this.commentRepository.save(newComment);
+  }
+
+  async removeComment(id: number): Promise<DeleteResult> {
+    return await this.commentRepository.delete(id);
   }
 }

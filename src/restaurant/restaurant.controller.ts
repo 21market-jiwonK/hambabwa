@@ -16,6 +16,9 @@ import {ApiConsumes, ApiCreatedResponse, ApiOperation, ApiTags} from "@nestjs/sw
 import {Restaurant} from "./entities/restaurant.entity";
 import {DeleteResult} from "typeorm";
 import {FileInterceptor} from "@nestjs/platform-express";
+import {CreateCommentDto} from "./dto/create-comment.dto";
+import {Comment} from "./entities/comment.entity";
+import {UpdateCommentDto} from "./dto/update-comment.dto";
 
 @Controller('restaurant')
 @ApiTags('Restaurant CRUD Api')
@@ -72,5 +75,33 @@ export class RestaurantController {
     @Param('id') id: number
   ): Promise<DeleteResult> {
     return await this.restaurantService.remove(id);
+  }
+
+  @Post('comment')
+  @ApiOperation({ summary: '코멘트 생성 API', description: '코멘트를 생성한다.' })
+  @ApiCreatedResponse({description: '생성 결과'})
+  async createComment(
+    @Body() userInput: CreateCommentDto
+  ): Promise<Comment> {
+    return await this.restaurantService.createComment(userInput);
+  }
+
+  @Patch('comment/:id')
+  @ApiOperation({ summary: '코멘트 수정 API', description: '코멘트를 수정한다.' })
+  @ApiCreatedResponse({description: '수정 결과'})
+  async updateComment(
+    @Param('id') id: number,
+    @Body() userInput: UpdateCommentDto
+  ): Promise<Comment> {
+    return await this.restaurantService.updateComment(id, userInput);
+  }
+
+  @Delete('comment/:id')
+  @ApiOperation({ summary: '코멘트 삭제 API', description: '코멘트를 삭제한다.' })
+  @ApiCreatedResponse({description: '삭제 결과'})
+  async removeComment(
+    @Param('id') id: number,
+  ): Promise<DeleteResult> {
+    return await this.restaurantService.removeComment(id);
   }
 }

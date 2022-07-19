@@ -1,6 +1,7 @@
-import {Column, Entity, JoinTable, ManyToMany} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
 import {BaseEntity} from "../../database/base-entity";
 import {Menu} from "../../menu/entities/menu.entity";
+import {Comment} from "./comment.entity";
 
 @Entity()
 export class Restaurant extends BaseEntity {
@@ -9,6 +10,15 @@ export class Restaurant extends BaseEntity {
     })
     @JoinTable({name: 'restaurants_menus'})
     public menus: Menu[];
+
+    @OneToMany(() => Comment, (comments: Comment) => comments.restaurant)
+    public comments: Comment[];
+
+    @Column('float', {
+        default: null,
+        nullable: true
+    })
+    public stars: number;
 
     @Column()
     public name: string;

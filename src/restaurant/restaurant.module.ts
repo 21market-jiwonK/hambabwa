@@ -7,6 +7,7 @@ import {HttpModule} from "@nestjs/axios";
 import {Menu} from "../menu/entities/menu.entity";
 import {CommonModule} from "../common/common.module";
 import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
+import {Comment} from "./entities/comment.entity";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
           Restaurant,
           Menu,
           ViewMenuWithCategories,
+          Comment,
       ]),
       HttpModule,
       CommonModule
