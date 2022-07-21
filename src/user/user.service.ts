@@ -20,7 +20,6 @@ export class UserService {
   async signup(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
     user.password = bcrypt.hashSync(user.password, 10);
-    console.log(bcrypt.hashSync(user.password, 10));
     return await this.userRepository.save(user);
   }
 
