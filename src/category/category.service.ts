@@ -18,16 +18,20 @@ export class CategoryService {
     let insertRows: Category[] = [];
     for (const row of rows) {
       const { code, title } = row;
+      const menuCategoryCode = code.substring(0,2);
       const children = rows
           .filter(row => row.parent === code)
           .map(row => this.categoryRepository.create({
             code: row.code,
-            title: row.title
+            title: row.title,
+            menuCategoryCode
           }));
-
+      const isLeaf = (!children.length);
       const rowData = this.categoryRepository.create({
         code,
         title,
+        menuCategoryCode,
+        isLeaf,
         children
       });
       insertRows.push(rowData);
@@ -39,10 +43,33 @@ export class CategoryService {
     return await this.categoryRepository.findTrees();
   }
 
-  async findOne(code: string) {
-    return await this.categoryRepository.findOne({
-      relations: ['parent', 'children'],
-      where: { code }
-    });
+  async findOne(code: string): Promise<Category> {
+    return await this.categoryRepository.findOne(code);
+  }
+
+  async updateIsLeaf(): Promise<boolean> {
+    const categories = await this.categoryRepository.find({relations: ['children']});
+    const notLeafCategoriesCodes = categories
+        .filter(({children}) => children.length)
+        .map(({code}) => code);
+    const leafCategoriesCodes = categories
+        .filter(({children}) => !children.length)
+        .map(({ code }) => code);
+    await this.categoryRepository.update(notLeafCategoriesCodes, {isLeaf: false});
+    await this.categoryRepository.update(leafCategoriesCodes, {isLeaf: true});
+    return true;
+  }
+
+  async updateMenuCategoryCodes(): Promise<boolean> {
+    const categories = await this.categoryRepository.find({relations: ['children']});
+    const codes = categories.map(({ code }) => code);
+    for (const code of codes) {
+      await this.categoryRepository.update(code, {menuCategoryCode: code.substring(0, 2)});
+    }
+    return true;
+  }
+
+  async findRoots() {
+    return await this.categoryRepository.findRoots();
   }
 }

@@ -96,7 +96,9 @@ export class RestaurantService {
   }
 
   async remove(id: number): Promise<DeleteResult> {
-    return await this.restaurantRepository.delete(id);
+    const deleteResult: DeleteResult = await this.restaurantRepository.delete(id);
+    await this.updateStars(id);
+    return deleteResult;
   }
 
   async createComment({ restaurantId, ...userInput }: CreateCommentDto):Promise<Comment> {
@@ -105,11 +107,14 @@ export class RestaurantService {
       restaurant: { id: restaurantId }
     });
     await this.commentRepository.save(newComment);
-
-    const { comments } = await this.findOne(restaurantId);
-    const avgStars = this.calculateStars(comments);
-    await this.restaurantRepository.update(restaurantId, {stars: avgStars});
+    await this.updateStars(restaurantId);
     return newComment;
+  }
+
+  async updateStars(id: number): Promise<void> {
+    const { comments } = await this.findOne(id);
+    const avgStars = this.calculateStars(comments);
+    await this.restaurantRepository.update(id, {stars: avgStars});
   }
 
   calculateStars(comments: Comment[]) {

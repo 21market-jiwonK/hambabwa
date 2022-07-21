@@ -1,5 +1,5 @@
 import {BaseEntity} from "../../database/base-entity";
-import {Column, Entity, JoinColumn, ManyToMany, ManyToOne} from "typeorm";
+import {BeforeInsert, Column, Entity, JoinColumn, ManyToMany, ManyToOne} from "typeorm";
 import {Category} from "../../category/entities/category.entity";
 import {Restaurant} from "../../restaurant/entities/restaurant.entity";
 
@@ -38,4 +38,20 @@ export class Menu extends BaseEntity {
     })
     public imageUrl: string;
 
+    @Column({
+        type: 'char',
+        default: 'N'
+    })
+    public isRepresentative: string;
+
+    @Column({
+        type: 'varchar',
+        length: 2
+    })
+    public menuCategoryCode: string;
+
+    @BeforeInsert()
+    setMenuCategoryCode() {
+        this.menuCategoryCode = this.category.menuCategoryCode;
+    }
 }

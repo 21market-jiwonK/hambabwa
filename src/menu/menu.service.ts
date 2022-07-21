@@ -8,6 +8,7 @@ import { CommonService } from "../common/common.service";
 import { ConfigService } from "@nestjs/config";
 import { CreateMenuFileDto } from "./dto/create-menu-file.dto";
 import { CreateMenuExcelDto } from "./dto/create-menu-excel.dto";
+import {CategoryService} from "../category/category.service";
 
 @Injectable()
 export class MenuService {
@@ -15,16 +16,19 @@ export class MenuService {
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
     private readonly commonService: CommonService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   async create(
-    adminInput: CreateMenuDto,
+    { categoryCode, ...adminInput }: CreateMenuDto,
     file: Express.Multer.File
   ): Promise<Menu> {
     const { url: imageUrl } = await this.uploadMenuImage(file);
+    const category = await this.categoryService.findOne(categoryCode);
     const newMenu: Menu = this.menuRepository.create({
       ...adminInput,
+      category,
       imageUrl,
     });
     await this.menuRepository.save(newMenu);
@@ -65,5 +69,21 @@ export class MenuService {
       await this.menuRepository.update(menuIds, { imageUrl: url });
     }
     return;
+  }
+
+  async findMenusByRootCategoryCode(code: string): Promise<Menu[]> {
+    return await this.menuRepository.find({
+      isRepresentative: "Y",
+      menuCategoryCode: code
+    });
+  }
+
+  async updateMenuCategoryCode(): Promise<boolean> {
+    const menus = await this.menuRepository.find({relations: ['category']});
+    for (const menu of menus) {
+      const { id, category } = menu;
+      await this.menuRepository.update(id, {menuCategoryCode: category.menuCategoryCode});
+    }
+    return true;
   }
 }

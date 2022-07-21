@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  UploadedFile,
+  UploadedFile, Put,
 } from "@nestjs/common";
 import { MenuService } from "./menu.service";
 import { CreateMenuDto } from "./dto/create-menu.dto";
@@ -84,4 +84,20 @@ export class MenuController {
   ): Promise<void> {
     return await this.menuService.updateMenuImageUrl(file);
   }
+
+  @Get('category/:code')
+  @ApiOperation({ summary: '대 카테고리로 메뉴 조회 API', description: '대 카테고리로 메뉴를 조회한다.' })
+  @ApiCreatedResponse({description: '목록조회 결과'})
+  async findMenusByCategoryCode(
+      @Param('code') code: string
+  ): Promise<Menu[]> {
+    return await this.menuService.findMenusByRootCategoryCode(code);
+  }
+
+  @Put('category')
+  @ApiOperation({ summary: 'menuCategoryCode 컬럼 업데이트 API', description: 'menuCategoryCode 컬럼을 업데이트한다.' })
+  async updateMenuCategoryCode(): Promise<boolean> {
+    return await this.menuService.updateMenuCategoryCode();
+  }
+
 }

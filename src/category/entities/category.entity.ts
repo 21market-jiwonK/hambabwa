@@ -21,4 +21,10 @@ export class Category {
 
     @TreeParent()
     parent: Category;
+
+    @Column()
+    isLeaf: boolean;
+
+    @Column({type: 'varchar', length: 2})
+    menuCategoryCode: string;
 }

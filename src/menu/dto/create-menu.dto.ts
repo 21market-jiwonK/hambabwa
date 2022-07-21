@@ -5,77 +5,66 @@ import {ApiProperty} from "@nestjs/swagger";
 export class CreateMenuDto {
     private _restaurant: Restaurant;
     private _category: Category;
+    private _menuCategoryCode: string;
+
+    @ApiProperty({
+        description: 'category 고유 code',
+        example: '050140000'
+    })
+    public categoryCode: string;
 
     @ApiProperty({
         description: '음식 코드',
         example: 'D212-027000000-0001'
     })
-    private _foodCode: string;
+    public foodCode: string;
 
     @ApiProperty({
         description: '음식명',
         example: '국밥_돼지머리'
     })
-    private _foodTitle: string;
+    public foodTitle: string;
 
     @ApiProperty({
         description: '열량',
         example: '300Kcal'
     })
-    private _calorie: string;
+    public calorie: string;
 
     @ApiProperty({
         type: 'string',
         format: 'binary',
         description: '메뉴 대표사진'
     })
-    private _imageUrl: string;
+    public imageUrl: string;
+
+    @ApiProperty({
+        description: 'Y - 카테고리 대표메뉴, N - default',
+        example: 'N'
+    })
+    public isRepresentative: string;
 
     get restaurant(): Restaurant {
         return this._restaurant;
     }
 
-    set restaurant(value: Restaurant) {
-        this._restaurant = value;
+    set restaurant(restaurant: Restaurant) {
+        this._restaurant = restaurant;
     }
 
     get category(): Category {
         return this._category;
     }
 
-    set category(value: Category) {
-        this._category = value;
+    set category(category: Category) {
+        this._category = category;
     }
 
-    get foodCode(): string {
-        return this._foodCode;
+    get menuCategoryCode(): string {
+        return this._menuCategoryCode;
     }
 
-    set foodCode(value: string) {
-        this._foodCode = value;
-    }
-
-    get foodTitle(): string {
-        return this._foodTitle;
-    }
-
-    set foodTitle(value: string) {
-        this._foodTitle = value;
-    }
-
-    get calorie(): string {
-        return this._calorie;
-    }
-
-    set calorie(value: string) {
-        this._calorie = value;
-    }
-
-    get imageUrl(): string {
-        return this._imageUrl;
-    }
-
-    set imageUrl(value: string) {
-        this._imageUrl = value;
+    set menuCategoryCode(code: string) {
+        this._menuCategoryCode = code;
     }
 }
