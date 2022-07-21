@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {CreateRestaurantDto} from './dto/create-restaurant.dto';
 import {UpdateRestaurantDto} from './dto/update-restaurant.dto';
 import {DeleteResult, Repository} from "typeorm";
@@ -70,6 +70,8 @@ export class RestaurantService {
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
         .leftJoinAndSelect('restaurant.comments', 'comment')
+        .leftJoin('comment.writer', 'writer')
+        .addSelect(['writer.nickname', 'writer.email'])
         .innerJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory', 'menusWithCategory.menuId = menus.menuId')
         .where('restaurant.id = :id', {id})
         .getOne()
@@ -101,10 +103,11 @@ export class RestaurantService {
     return deleteResult;
   }
 
-  async createComment({ restaurantId, ...userInput }: CreateCommentDto):Promise<Comment> {
+  async createComment({ restaurantId, writer, ...userInput }: CreateCommentDto):Promise<Comment> {
     const newComment = await this.commentRepository.create({
       ...userInput,
-      restaurant: { id: restaurantId }
+      restaurant: { id: restaurantId },
+      writer
     });
     await this.commentRepository.save(newComment);
     await this.updateStars(restaurantId);
@@ -124,12 +127,19 @@ export class RestaurantService {
     return starsSum / comments.length;
   }
 
-  async updateComment(id: number, { restaurantId, ...userInput }: UpdateCommentDto): Promise<Comment> {
+  async updateComment(id: number, { writer, ...userInput }: UpdateCommentDto): Promise<Comment> {
+    const oldComment = await this.commentRepository.findOne(id, {relations: ['restaurant', 'writer']});
+    if (oldComment.writer.email !== writer.email) {
+      throw new HttpException('작성자만 수정 가능합니다.', HttpStatus.BAD_REQUEST);
+    }
+
     const newComment = await this.commentRepository.create({
       id,
       ...userInput,
     });
-    return this.commentRepository.save(newComment);
+    await this.commentRepository.save(newComment);
+    await this.updateStars(oldComment.restaurant.id);
+    return newComment;
   }
 
   async removeComment(id: number): Promise<DeleteResult> {

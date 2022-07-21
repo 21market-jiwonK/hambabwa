@@ -1,7 +1,10 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {Transform} from "class-transformer";
+import {User} from "../../user/entities/user.entity";
 
 export class CreateCommentDto {
+    private _writer: User;
+
     @Transform(({ value }) => Number(value))
     @ApiProperty({
         description: 'restaurant 고유 id',
@@ -20,4 +23,12 @@ export class CreateCommentDto {
         example: 4.5
     })
     public stars: number;
+
+    get writer(): User {
+        return this._writer;
+    }
+
+    set writer(user: User) {
+        this._writer = user;
+    }
 }

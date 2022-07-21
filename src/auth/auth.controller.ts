@@ -10,10 +10,10 @@ import {
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginRequestDto } from "./dto/login.request.dto";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { User } from "src/user/entities/user.entity";
 import { UserService } from "../user/user.service";
-import { LocalAuthGuard } from "./guards/local-auth.gurad";
+import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { CreateUserDto } from "src/user/dto/create-users.dto";
 import { JwtRefreshGuard } from "./guards/jwt-refresh.guard";
 import { RequestWithUser } from "./requestWithUser.interface";

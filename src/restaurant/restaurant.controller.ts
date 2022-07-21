@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  UploadedFile
+  UploadedFile, UseGuards, Req
 } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
@@ -19,6 +19,8 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {CreateCommentDto} from "./dto/create-comment.dto";
 import {Comment} from "./entities/comment.entity";
 import {UpdateCommentDto} from "./dto/update-comment.dto";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {RequestWithUser} from "../auth/requestWithUser.interface";
 
 @Controller('restaurant')
 @ApiTags('Restaurant CRUD Api')
@@ -78,21 +80,27 @@ export class RestaurantController {
   }
 
   @Post('comment')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '코멘트 생성 API', description: '코멘트를 생성한다.' })
   @ApiCreatedResponse({description: '생성 결과'})
   async createComment(
+    @Req() { user }: RequestWithUser,
     @Body() userInput: CreateCommentDto
   ): Promise<Comment> {
+    userInput.writer = user;
     return await this.restaurantService.createComment(userInput);
   }
 
   @Patch('comment/:id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '코멘트 수정 API', description: '코멘트를 수정한다.' })
   @ApiCreatedResponse({description: '수정 결과'})
   async updateComment(
+    @Req() { user }: RequestWithUser,
     @Param('id') id: number,
     @Body() userInput: UpdateCommentDto
   ): Promise<Comment> {
+    userInput.writer = user;
     return await this.restaurantService.updateComment(id, userInput);
   }
 

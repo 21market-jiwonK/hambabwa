@@ -2,6 +2,7 @@ import {BaseEntity} from "../../database/base-entity";
 import {BeforeInsert, Column, Entity, JoinColumn, ManyToMany, ManyToOne} from "typeorm";
 import {Category} from "../../category/entities/category.entity";
 import {Restaurant} from "../../restaurant/entities/restaurant.entity";
+import {User} from "../../user/entities/user.entity";
 
 @Entity()
 export class Menu extends BaseEntity {
@@ -11,6 +12,9 @@ export class Menu extends BaseEntity {
     @ManyToOne(() => Category, (category: Category) => category.menus)
     @JoinColumn()
     public category: Category;
+
+    @ManyToMany(() => User, (users: User) => users.favorites)
+    public users: User[];
 
     @Column({
         type: 'varchar',
