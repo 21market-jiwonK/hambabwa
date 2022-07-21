@@ -1,4 +1,12 @@
-import { Controller, Post, UseGuards, Body, Res, Req } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Body,
+  Res,
+  Req,
+  Get,
+} from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginRequestDto } from "./dto/login.request.dto";
@@ -30,17 +38,17 @@ export class AuthController {
   @ApiOperation({ summary: "로그인" })
   async login(
     @Body() user: LoginRequestDto,
-    @Res({ passthrough: true }) response: Response
+    @Res({ passthrough: true }) res: Response
   ): Promise<User> {
     const userInfo = await this.authService.login(user);
 
     const { accessToken, ...accessOption } =
-      await this.authService.getCookieWithJwtToken(userInfo);
+      this.authService.getCookieWithJwtToken(userInfo);
     const { refreshToken, ...refreshOption } =
-      await this.authService.getCookieWithJwtRefreshToken(userInfo);
+      this.authService.getCookieWithJwtRefreshToken(userInfo);
 
-    response.cookie("Authentication", accessToken, accessOption);
-    response.cookie("Refresh", refreshToken, refreshOption);
+    res.cookie("Authentication", accessToken, accessOption);
+    res.cookie("Refresh", refreshToken, refreshOption);
 
     await this.userService.setCurrentRefreshToken(refreshToken, userInfo.id);
 
@@ -56,7 +64,7 @@ export class AuthController {
   async logout(
     @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response
-  ): Promise<User> {
+  ): Promise<void> {
     const user: User = req.user;
     const { accessOption, refreshOption } =
       this.authService.getCookiesForLogOut();
@@ -66,8 +74,21 @@ export class AuthController {
     res.cookie("Authentication", "", accessOption);
     res.cookie("Refresh", "", refreshOption);
 
-    user.password = undefined;
-    user.currentHashedRefreshToken = undefined;
+    return;
+  }
+
+  @Get("refresh")
+  @UseGuards(JwtRefreshGuard)
+  @ApiOperation({ summary: "refresh 토큰으로 access 토큰 재발급" })
+  refresh(
+    @Req() req: RequestWithUser,
+    @Res({ passthrough: true }) res: Response
+  ): User {
+    const user = req.user;
+    const { accessToken, ...accessOption } =
+      this.authService.getCookieWithJwtToken(user);
+
+    res.cookie("Authentication", accessToken, accessOption);
 
     return user;
   }

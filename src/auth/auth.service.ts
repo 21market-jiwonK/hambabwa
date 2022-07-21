@@ -50,7 +50,7 @@ export class AuthService {
     throw new UnauthorizedException("이메일과 비밀번호를 확인해주세요.");
   }
 
-  async getCookieWithJwtToken(user: User) {
+  getCookieWithJwtToken(user: User) {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -73,7 +73,7 @@ export class AuthService {
     };
   }
 
-  async getCookieWithJwtRefreshToken(user: User) {
+  getCookieWithJwtRefreshToken(user: User) {
     const payload = {
       email: user.email,
       sub: user.id,
