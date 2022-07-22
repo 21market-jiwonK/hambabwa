@@ -1,5 +1,5 @@
 import { Exclude } from "class-transformer";
-import {Column, Entity, ManyToMany, OneToMany} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
 import { BaseEntity } from "../../database/base-entity";
 import {Menu} from "../../menu/entities/menu.entity";
 import {Comment} from "../../restaurant/entities/comment.entity";
@@ -7,6 +7,7 @@ import {Comment} from "../../restaurant/entities/comment.entity";
 @Entity()
 export class User extends BaseEntity {
   @ManyToMany(() => Menu, (menus: Menu) => menus.users)
+  @JoinTable()
   public favorites: Menu[];
 
   @OneToMany(() => Comment, (comment: Comment) => comment.writer)

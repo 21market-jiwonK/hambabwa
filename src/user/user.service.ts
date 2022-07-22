@@ -1,14 +1,10 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { CreateUserDto } from "./dto/create-users.dto";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "./entities/user.entity";
+import {HttpException, HttpStatus, Injectable, UnauthorizedException,} from "@nestjs/common";
+import {CreateUserDto} from "./dto/create-users.dto";
+import {Repository} from "typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
+import {User} from "./entities/user.entity";
 import * as bcrypt from "bcrypt";
+import {MyList, SearchMyDto} from "./dto/search-my.dto";
 
 @Injectable()
 export class UserService {
@@ -68,5 +64,21 @@ export class UserService {
     return await this.userRepository.update(id, {
       currentHashedRefreshToken: null,
     });
+  }
+
+  async findMyLists({ writer, ...userInput }: SearchMyDto) {
+    const { type } = userInput;
+    let qb = this.userRepository.createQueryBuilder('my')
+        .where('my.id = :id', {id: writer.id});
+    switch (type) {
+      case MyList.COMMENT:
+        return await qb
+            .leftJoinAndSelect('my.comments', 'comments')
+            .getOne();
+      case MyList.FAVORITE:
+        return await qb
+            .leftJoinAndSelect('my.favorites', 'favorites')
+            .getOne();
+    }
   }
 }
