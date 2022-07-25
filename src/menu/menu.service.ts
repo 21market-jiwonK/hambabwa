@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateMenuDto } from "./dto/create-menu.dto";
 import { UpdateMenuDto } from "./dto/update-menu.dto";
 import { Menu } from "./entities/menu.entity";
-import { DeleteResult, Repository } from "typeorm";
+import {DeleteResult, In, Repository} from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CommonService } from "../common/common.service";
 import { ConfigService } from "@nestjs/config";
@@ -85,5 +85,9 @@ export class MenuService {
       await this.menuRepository.update(id, {menuCategoryCode: category.menuCategoryCode});
     }
     return true;
+  }
+
+  async findMenusByIds(ids: number[]): Promise<Menu[]> {
+    return await this.menuRepository.find({where: {id: In(ids)}});
   }
 }

@@ -24,4 +24,12 @@ export class SearchMyDto {
     set writer(user: User) {
         this._writer = user;
     }
+
+    get getType() {
+        return this.type;
+    }
+
+    set setType(type: MyList) {
+        this.type = type;
+    }
 }

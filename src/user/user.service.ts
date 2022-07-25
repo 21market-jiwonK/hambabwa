@@ -5,12 +5,17 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "./entities/user.entity";
 import * as bcrypt from "bcrypt";
 import {MyList, SearchMyDto} from "./dto/search-my.dto";
+import {CreateFavoritesDto} from "./dto/create-favorites.dto";
+import {MenuService} from "../menu/menu.service";
+import {UpdateFavoritesDto} from "./dto/update-favorites.dto";
+import {ToggleType} from "../common/enums/toggle.type.enum";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly menuService: MenuService
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<User> {
@@ -66,19 +71,58 @@ export class UserService {
     });
   }
 
-  async findMyLists({ writer, ...userInput }: SearchMyDto) {
-    const { type } = userInput;
-    let qb = this.userRepository.createQueryBuilder('my')
-        .where('my.id = :id', {id: writer.id});
-    switch (type) {
+  async findMyLists({ writer, getType }: SearchMyDto): Promise<User> {
+    switch (getType) {
       case MyList.COMMENT:
-        return await qb
-            .leftJoinAndSelect('my.comments', 'comments')
-            .getOne();
+        return await this.findMyComments(writer.id);
       case MyList.FAVORITE:
-        return await qb
-            .leftJoinAndSelect('my.favorites', 'favorites')
-            .getOne();
+        return await this.findMyFavorites(writer.id);
     }
   }
+
+  async findMyFavorites(id: number): Promise<User> {
+    return await this.userRepository.createQueryBuilder('my')
+        .where('my.id = :id', {id})
+        .leftJoinAndSelect('my.favorites', 'favorites')
+        .getOne();
+  }
+
+  async findMyComments(id: number): Promise<User> {
+    return await this.userRepository.createQueryBuilder('my')
+        .where('my.id = :id', {id})
+        .leftJoinAndSelect('my.comments', 'comments')
+        .getOne();
+  }
+
+  async setMyFavorites(createFavoritesDto: CreateFavoritesDto) {
+    const { user, menuIds } = createFavoritesDto;
+    createFavoritesDto.favorites = await this.menuService.findMenusByIds(menuIds);
+    const newFavorites = this.userRepository.create({
+      id: user.id,
+      favorites: createFavoritesDto.favorites,
+    });
+    await this.userRepository.save(newFavorites);
+    return await this.findMyFavorites(user.id);
+  }
+
+  async updateFavorites(updateFavoritesDto: UpdateFavoritesDto) {
+    const { user, menuId, type } = updateFavoritesDto;
+    let { favorites } = await this.findMyFavorites(user.id);
+    switch (type) {
+      case ToggleType.OFF:
+        favorites = favorites.filter(({ id }) => id !== menuId);
+        break;
+      case ToggleType.ON:
+        const [newFavorite] = await this.menuService.findMenusByIds([menuId]);
+        favorites.push(newFavorite);
+        break;
+    }
+    const newFavorites = this.userRepository.create({
+      id: user.id,
+      favorites
+    });
+    await this.userRepository.save(newFavorites);
+    return await this.findMyFavorites(user.id);
+  }
+
 }

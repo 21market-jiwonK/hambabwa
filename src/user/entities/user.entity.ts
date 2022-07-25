@@ -8,7 +8,10 @@ import { Comment } from "../../restaurant/entities/comment.entity";
 
 @Entity()
 export class User extends BaseEntity {
-  @ManyToMany(() => Menu, (menus: Menu) => menus.users)
+  @ManyToMany(() => Menu, (menus: Menu) => menus.users, {
+    cascade: true,
+    onUpdate: "CASCADE",
+  })
   @JoinTable()
   public favorites: Menu[];
 
@@ -28,6 +31,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   @Exclude()
   currentHashedRefreshToken?: string;
+
   @Column({ type: "enum", enum: UserRole })
   public role: UserRole;
 }
