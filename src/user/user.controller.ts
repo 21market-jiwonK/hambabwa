@@ -6,6 +6,7 @@ import {SearchMyDto} from "./dto/search-my.dto";
 import {RequestWithUser, User} from "./entities/user.entity";
 import {CreateFavoritesDto} from "./dto/create-favorites.dto";
 import {UpdateFavoritesDto} from "./dto/update-favorites.dto";
+import { UpdateUsersDto } from "./dto/update-users.dto";
 
 @Controller("user")
 @ApiTags("user")
@@ -56,5 +57,16 @@ export class UserController {
     userInput.user = user;
     userInput.menuId = menuId;
     return await this.userService.updateFavorites(userInput);
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "본인정보 수정 API" })
+  async updateProfile(
+    @Req() { user }: RequestWithUser,
+    @Body() userInput: UpdateUsersDto
+  ){
+    user.nickname = userInput.nickname;
+    return await this.userService.updateProfile(user);
   }
 }

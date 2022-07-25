@@ -125,4 +125,7 @@ export class UserService {
     return await this.findMyFavorites(user.id);
   }
 
+  async updateProfile(user: User) {
+    return await this.userRepository.save(user);
+  }
 }
