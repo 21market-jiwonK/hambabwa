@@ -99,7 +99,7 @@ export class UserService {
         .getOne();
   }
 
-  async setMyFavorites(createFavoritesDto: CreateFavoritesDto) {
+  async setMyFavorites(createFavoritesDto: CreateFavoritesDto): Promise<User> {
     const { user, menuIds } = createFavoritesDto;
     createFavoritesDto.favorites = await this.menuService.findMenusByIds(menuIds);
     const newFavorites = this.userRepository.create({
@@ -110,7 +110,7 @@ export class UserService {
     return await this.findMyFavorites(user.id);
   }
 
-  async updateFavorites(updateFavoritesDto: UpdateFavoritesDto) {
+  async updateFavorites(updateFavoritesDto: UpdateFavoritesDto): Promise<User> {
     const { user, menuId, type } = updateFavoritesDto;
     let { favorites } = await this.findMyFavorites(user.id);
     switch (type) {

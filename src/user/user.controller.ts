@@ -7,7 +7,6 @@ import {RequestWithUser, User} from "./entities/user.entity";
 import {CreateFavoritesDto} from "./dto/create-favorites.dto";
 import {UpdateFavoritesDto} from "./dto/update-favorites.dto";
 import { UpdateUsersDto } from "./dto/update-users.dto";
-import { CommonService } from '../common/common.service';
 import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("user")
@@ -15,7 +14,6 @@ import { FileInterceptor } from "@nestjs/platform-express";
 export class UserController {
   constructor(
       private readonly userService: UserService,
-      private readonly commonService: CommonService
   ) {}
 
   @Get("profile")
@@ -33,7 +31,7 @@ export class UserController {
   async getMyLists(
     @Req() { user }: RequestWithUser,
     @Query() filter: SearchMyDto
-  ): Promise<any> {
+  ): Promise<User> {
     filter.writer = user;
     return await this.userService.findMyLists(filter);
   }
@@ -44,7 +42,7 @@ export class UserController {
   async setMyFavorites(
     @Req() { user }: RequestWithUser,
     @Body() userInput: CreateFavoritesDto
-  ) {
+  ): Promise<User> {
     userInput.user = user;
     return await this.userService.setMyFavorites(userInput);
   }
@@ -56,7 +54,7 @@ export class UserController {
     @Req() { user }: RequestWithUser,
     @Param('menuId') menuId: number,
     @Body() userInput: UpdateFavoritesDto
-  ) {
+  ): Promise<User> {
     userInput.user = user;
     userInput.menuId = menuId;
     return await this.userService.updateFavorites(userInput);
