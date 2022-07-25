@@ -20,7 +20,7 @@ import {CreateCommentDto} from "./dto/create-comment.dto";
 import {Comment} from "./entities/comment.entity";
 import {UpdateCommentDto} from "./dto/update-comment.dto";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
-import {RequestWithUser} from "../auth/requestWithUser.interface";
+import { RequestWithUser } from 'src/user/entities/user.entity';
 
 @Controller('restaurant')
 @ApiTags('Restaurant CRUD Api')

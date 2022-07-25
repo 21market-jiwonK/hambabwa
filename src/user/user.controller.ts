@@ -2,8 +2,8 @@ import {Controller, Get, Query, Req, UseGuards} from "@nestjs/common";
 import {ApiOperation, ApiTags} from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UserService } from "./user.service";
-import {RequestWithUser} from "../auth/requestWithUser.interface";
 import {SearchMyDto} from "./dto/search-my.dto";
+import { RequestWithUser } from "./entities/user.entity";
 
 @Controller("user")
 @ApiTags("user")

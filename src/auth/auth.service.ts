@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { User } from "src/user/entities/user.entity";
+import { ReadOnlyUserData, User } from "src/user/entities/user.entity";
 import { UserService } from "../user/user.service";
 import { LoginRequestDto } from "./dto/login.request.dto";
 import * as bcrypt from "bcrypt";
@@ -15,12 +15,12 @@ export class AuthService {
     private readonly configService: ConfigService
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(
+    email: string,
+    pass: string
+  ): Promise<ReadOnlyUserData | null> {
     const user = await this.userService.findUserByEmail(email);
 
-    if (user) {
-      return user;
-    }
     const isPasswordValidated: boolean = await bcrypt.compare(
       pass,
       user.password

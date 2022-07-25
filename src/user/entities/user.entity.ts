@@ -1,8 +1,10 @@
+import { OmitType } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import {Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
+import { UserRole } from "src/common/enums/user.role.enum";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
 import { BaseEntity } from "../../database/base-entity";
-import {Menu} from "../../menu/entities/menu.entity";
-import {Comment} from "../../restaurant/entities/comment.entity";
+import { Menu } from "../../menu/entities/menu.entity";
+import { Comment } from "../../restaurant/entities/comment.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -25,4 +27,17 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   @Exclude()
   currentHashedRefreshToken?: string;
+  @Column({ type: "enum", enum: UserRole })
+  public role: UserRole;
+}
+
+export class ReadOnlyUserData extends OmitType(User, ["password"] as const) {}
+
+export type Payload = {
+  email: string;
+  sub: number;
+};
+
+export interface RequestWithUser extends Request {
+  user: User;
 }
