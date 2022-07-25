@@ -1,17 +1,21 @@
-import {Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards} from "@nestjs/common";
-import {ApiOperation, ApiTags} from "@nestjs/swagger";
+import {Body, Controller, Get, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
+import {ApiConsumes, ApiOperation, ApiTags} from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UserService } from "./user.service";
 import {SearchMyDto} from "./dto/search-my.dto";
 import {RequestWithUser, User} from "./entities/user.entity";
 import {CreateFavoritesDto} from "./dto/create-favorites.dto";
 import {UpdateFavoritesDto} from "./dto/update-favorites.dto";
+import { UpdateUsersDto } from "./dto/update-users.dto";
+import { CommonService } from '../common/common.service';
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("user")
 @ApiTags("user")
 export class UserController {
   constructor(
-      private readonly userService: UserService
+      private readonly userService: UserService,
+      private readonly commonService: CommonService
   ) {}
 
   @Get("profile")
@@ -56,5 +60,18 @@ export class UserController {
     userInput.user = user;
     userInput.menuId = menuId;
     return await this.userService.updateFavorites(userInput);
+  }
+
+  @Post('profile')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('imageUrl'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: "본인정보 수정 API" })
+  async updateProfile(
+    @Req() { user }: RequestWithUser,
+    @Body() userInput: UpdateUsersDto,
+    @UploadedFile() file?: Express.Multer.File
+  ): Promise<User> {
+    return await this.userService.updateProfile(user, userInput, file);
   }
 }

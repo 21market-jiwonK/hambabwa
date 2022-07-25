@@ -14,7 +14,7 @@ export class CreateUserDto {
   public nickname: string;
 
   @ApiProperty({
-    description: "password",
+    description: "비밀번호",
     example: "123",
   })
   public password: string;

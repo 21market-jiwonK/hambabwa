@@ -9,13 +9,18 @@ import {CreateFavoritesDto} from "./dto/create-favorites.dto";
 import {MenuService} from "../menu/menu.service";
 import {UpdateFavoritesDto} from "./dto/update-favorites.dto";
 import {ToggleType} from "../common/enums/toggle.type.enum";
+import { CommonService } from "src/common/common.service";
+import { ConfigService } from "@nestjs/config";
+import { UpdateUsersDto } from "./dto/update-users.dto";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly menuService: MenuService
+    private readonly menuService: MenuService,
+    private readonly configService: ConfigService,
+    private readonly commonService: CommonService
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<User> {
@@ -125,4 +130,12 @@ export class UserService {
     return await this.findMyFavorites(user.id);
   }
 
+  async updateProfile(user: User, userInput: UpdateUsersDto, file?: Express.Multer.File) {
+    user.nickname = userInput.nickname;
+    if (file) {
+      const { Key } = await this.commonService.uploadFile(file, 'profile');
+      user.imageUrl = this.configService.get('AWS_S3_IMAGE_URL') + Key;
+    }
+    return await this.userRepository.save(user);
+  }
 }
