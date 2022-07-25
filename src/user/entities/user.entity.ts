@@ -34,6 +34,11 @@ export class User extends BaseEntity {
 
   @Column({ type: "enum", enum: UserRole })
   public role: UserRole;
+
+  @Column({
+    default: 'https://image.hambabwa.kr/dev/profile/default.png',
+  })
+  public imageUrl: string;
 }
 
 export class ReadOnlyUserData extends OmitType(User, ["password"] as const) {}
