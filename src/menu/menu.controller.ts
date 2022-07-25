@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  UploadedFile, Put,
+  UploadedFile, Put, UseGuards,
 } from "@nestjs/common";
 import { MenuService } from "./menu.service";
 import { CreateMenuDto } from "./dto/create-menu.dto";
@@ -21,6 +21,8 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Menu } from "./entities/menu.entity";
+import { RolesGuard } from "src/auth/guards/role.guard";
+import { Roles } from "src/auth/decorator/roles.decorators";
 
 @Controller("menu")
 @ApiTags("Menu CRUD Api")
@@ -28,6 +30,8 @@ export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @UseInterceptors(FileInterceptor("image"))
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "메뉴 생성 API", description: "메뉴를 생성 한다." })
@@ -50,6 +54,8 @@ export class MenuController {
   }
 
   @Patch(":id")
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @UseInterceptors(FileInterceptor("image"))
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "메뉴 수정 API", description: "메뉴를 수정한다." })
@@ -59,6 +65,8 @@ export class MenuController {
   }
 
   @Delete(":id")
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @ApiOperation({ summary: "메뉴 삭제 API", description: "메뉴를 삭제한다." })
   @ApiCreatedResponse({ description: "삭제 결과" })
   async remove(@Param("id") id: number) {
@@ -66,6 +74,8 @@ export class MenuController {
   }
 
   @Post("/update-image-url")
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @ApiConsumes("multipart/form-data")
   @ApiBody({
     schema: {
@@ -95,6 +105,8 @@ export class MenuController {
   }
 
   @Put('category')
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @ApiOperation({ summary: 'menuCategoryCode 컬럼 업데이트 API', description: 'menuCategoryCode 컬럼을 업데이트한다.' })
   async updateMenuCategoryCode(): Promise<boolean> {
     return await this.menuService.updateMenuCategoryCode();

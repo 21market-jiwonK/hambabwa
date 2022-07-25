@@ -21,6 +21,8 @@ import {Comment} from "./entities/comment.entity";
 import {UpdateCommentDto} from "./dto/update-comment.dto";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import { RequestWithUser } from 'src/user/entities/user.entity';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/auth/decorator/roles.decorators';
 
 @Controller('restaurant')
 @ApiTags('Restaurant CRUD Api')
@@ -30,6 +32,8 @@ export class RestaurantController {
   ) {}
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @UseInterceptors(FileInterceptor('_imageUrl'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '식당 생성 API', description: '식당을 생성 한다.' })
@@ -58,6 +62,8 @@ export class RestaurantController {
   }
 
   @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @UseInterceptors(FileInterceptor('_imageUrl'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '식당 수정 API', description: '식당 상세 정보를 수정 한다.' })
@@ -71,6 +77,8 @@ export class RestaurantController {
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles("admin")
   @ApiOperation({ summary: '식당 삭제 API', description: '식당 상세 정보를 삭제 한다.' })
   @ApiCreatedResponse({description: '삭제 결과'})
   async remove(
