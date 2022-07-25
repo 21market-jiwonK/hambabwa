@@ -47,7 +47,7 @@ export class UserController {
 
   @Patch("profile/list/:menuId")
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: "내가 좋아하는 메뉴 최초 설정 및 다시하기(초기화 후 재설정) API" })
+  @ApiOperation({ summary: "내가 좋아하는 메뉴 추가 / 삭제 하기" })
   async addOrDeleteMyFavorites(
     @Req() { user }: RequestWithUser,
     @Param('menuId') menuId: number,
