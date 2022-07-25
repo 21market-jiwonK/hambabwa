@@ -12,6 +12,7 @@ import {ToggleType} from "../common/enums/toggle.type.enum";
 import { CommonService } from "src/common/common.service";
 import { ConfigService } from "@nestjs/config";
 import { UpdateUsersDto } from "./dto/update-users.dto";
+import {Menu} from "../menu/entities/menu.entity";
 
 @Injectable()
 export class UserService {
@@ -101,12 +102,14 @@ export class UserService {
 
   async setMyFavorites(createFavoritesDto: CreateFavoritesDto): Promise<User> {
     const { user, menuIds } = createFavoritesDto;
-    createFavoritesDto.favorites = await this.menuService.findMenusByIds(menuIds);
-    const newFavorites = this.userRepository.create({
+    let { favorites } = await this.findMyFavorites(user.id);
+    const newFavoriteMenus: Menu[] = await this.menuService.findMenusByIds(menuIds);
+    newFavoriteMenus.forEach(menu => favorites.push(menu));
+    const userWithFavorites = this.userRepository.create({
       id: user.id,
-      favorites: createFavoritesDto.favorites,
+      favorites,
     });
-    await this.userRepository.save(newFavorites);
+    await this.userRepository.save(userWithFavorites);
     return await this.findMyFavorites(user.id);
   }
 
@@ -118,15 +121,15 @@ export class UserService {
         favorites = favorites.filter(({ id }) => id !== menuId);
         break;
       case ToggleType.ON:
-        const [newFavorite] = await this.menuService.findMenusByIds([menuId]);
+        const [newFavorite]: Menu[] = await this.menuService.findMenusByIds([menuId]);
         favorites.push(newFavorite);
         break;
     }
-    const newFavorites = this.userRepository.create({
+    const userWithFavorites = this.userRepository.create({
       id: user.id,
       favorites
     });
-    await this.userRepository.save(newFavorites);
+    await this.userRepository.save(userWithFavorites);
     return await this.findMyFavorites(user.id);
   }
 
@@ -137,5 +140,14 @@ export class UserService {
       user.imageUrl = this.configService.get('AWS_S3_IMAGE_URL') + Key;
     }
     return await this.userRepository.save(user);
+  }
+
+  async resetMyFavorites(user: User): Promise<User> {
+    const userWithZeroFavorites = this.userRepository.create({
+      id: user.id,
+      favorites: []
+    });
+    await this.userRepository.save(userWithZeroFavorites);
+    return await this.findMyFavorites(user.id);
   }
 }

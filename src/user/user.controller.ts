@@ -47,6 +47,15 @@ export class UserController {
     return await this.userService.setMyFavorites(userInput);
   }
 
+  @Post("profile/list/reset")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "내가 좋아하는 메뉴 리셋 API" })
+  async resetMyFavorites(
+    @Req() { user }: RequestWithUser,
+  ): Promise<User> {
+    return await this.userService.resetMyFavorites(user);
+  }
+
   @Patch("profile/list/:menuId")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "내가 좋아하는 메뉴 추가 / 삭제 하기" })
