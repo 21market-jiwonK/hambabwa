@@ -1,15 +1,15 @@
-import {Exclude, Expose} from "class-transformer";
+import {classToPlain, Exclude, Expose} from "class-transformer";
 import {HttpStatus} from "@nestjs/common";
 
 export class CommonResponse<T> {
     @Exclude() private readonly statusCode: number;
     @Exclude() private readonly message: string;
-    @Exclude() private readonly data: T;
+    @Exclude() private readonly data: Record<string, any>;
 
     constructor(status: number, data: T) {
         this.statusCode = status;
         this.message = HttpStatus[status];
-        this.data = data;
+        this.data = classToPlain(data);
     }
 
     @Expose()
@@ -23,7 +23,7 @@ export class CommonResponse<T> {
     }
 
     @Expose()
-    get getData(): T {
+    get getData(): Record<string, any> {
         return this.data;
     }
 }

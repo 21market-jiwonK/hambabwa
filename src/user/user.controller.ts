@@ -3,7 +3,7 @@ import {ApiOperation, ApiTags} from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UserService } from "./user.service";
 import {SearchMyDto} from "./dto/search-my.dto";
-import { RequestWithUser } from "./entities/user.entity";
+import {RequestWithUser, User} from "./entities/user.entity";
 
 @Controller("user")
 @ApiTags("user")
@@ -15,9 +15,9 @@ export class UserController {
   @Get("profile")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "본인정보 조회" })
-  async getProfile(@Req() req) {
-    req.user.password = undefined;
-    req.user.currentHashedRefreshToken = undefined;
+  async getProfile(
+      @Req() req
+  ): Promise<User> {
     return req.user;
   }
 

@@ -50,10 +50,6 @@ export class AuthController {
     res.cookie("Refresh", refreshToken, refreshOption);
 
     await this.userService.setCurrentRefreshToken(refreshToken, userInfo.id);
-
-    userInfo.password = undefined;
-    userInfo.currentHashedRefreshToken = undefined;
-
     return userInfo;
   }
 

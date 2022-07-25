@@ -9,6 +9,8 @@ import { MenuModule } from "./menu/menu.module";
 import { CategoryModule } from "./category/category.module";
 import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
+import {APP_INTERCEPTOR} from "@nestjs/core";
+import {ClassToPlainInterceptor} from "./common/interceptors/ClassToPlain.interceptor";
 
 @Module({
   imports: [
@@ -36,6 +38,12 @@ import { UserModule } from "./user/user.module";
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+      AppService,
+      {
+        provide: APP_INTERCEPTOR,
+        useClass: ClassToPlainInterceptor
+      },
+  ],
 })
 export class AppModule {}

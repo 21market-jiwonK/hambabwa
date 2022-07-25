@@ -22,6 +22,7 @@ export class User extends BaseEntity {
   public nickname: string;
 
   @Column({ type: "varchar", length: 80 })
+  @Exclude()
   public password: string;
 
   @Column({ nullable: true })
