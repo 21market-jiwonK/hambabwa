@@ -22,8 +22,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableCors({
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    origin: (process.env.NODE_ENV === 'development' ? true : configService.get('ACCESS_CONTROL_ALLOW_ORIGINS')),
-    credentials: true
+    origin: true,
+    credentials: true,
+    exposedHeaders: 'Authorization',
   });
 
   const configBuilder = new DocumentBuilder()
