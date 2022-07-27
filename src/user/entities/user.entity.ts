@@ -11,6 +11,7 @@ export class User extends BaseEntity {
   @ManyToMany(() => Menu, (menus: Menu) => menus.users, {
     cascade: true,
     onUpdate: "CASCADE",
+    eager: true,
   })
   @JoinTable()
   public favorites: Menu[];

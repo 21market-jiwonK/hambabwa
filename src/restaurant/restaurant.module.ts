@@ -8,6 +8,7 @@ import {Menu} from "../menu/entities/menu.entity";
 import {CommonModule} from "../common/common.module";
 import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
 import {Comment} from "./entities/comment.entity";
+import {UserModule} from "../user/user.module";
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import {Comment} from "./entities/comment.entity";
           Comment,
       ]),
       HttpModule,
-      CommonModule
+      CommonModule,
+      UserModule,
   ],
   controllers: [RestaurantController],
   providers: [RestaurantService]
