@@ -14,6 +14,8 @@ import {ViewMenuWithCategories} from "./entities/v.menu.with.categories.entity";
 import {Comment} from "./entities/comment.entity";
 import {CreateCommentDto} from "./dto/create-comment.dto";
 import {UpdateCommentDto} from "./dto/update-comment.dto";
+import {User} from "../user/entities/user.entity";
+import {Priority} from "./Priority";
 
 @Injectable()
 export class RestaurantService {
@@ -28,7 +30,7 @@ export class RestaurantService {
       private readonly commentRepository: Repository<Comment>,
       private readonly httpService: HttpService,
       private readonly configService: ConfigService,
-      private readonly commonService: CommonService
+      private readonly commonService: CommonService,
   ) {}
 
   async create(adminInput: CreateRestaurantDto, image: Express.Multer.File): Promise<Restaurant> {
@@ -57,15 +59,18 @@ export class RestaurantService {
     return firstValueFrom(await this.httpService.get(url,{headers}));
   }
 
-  async findAll(): Promise<Restaurant[]> {
-    return await this.restaurantRepository.createQueryBuilder('restaurant')
+  async findAll(user: User): Promise<Restaurant[]> {
+    const unOrderedRestaurants = await this.restaurantRepository.createQueryBuilder('restaurant')
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
         .innerJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory', 'menusWithCategory.menuId = menus.menuId')
         .getMany();
+
+    const { orderedRestaurants } = new Priority(unOrderedRestaurants, user);
+    return orderedRestaurants;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Restaurant> {
     return await this.restaurantRepository.createQueryBuilder('restaurant')
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')

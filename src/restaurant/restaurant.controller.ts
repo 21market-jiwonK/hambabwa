@@ -46,10 +46,13 @@ export class RestaurantController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '식당 목록을 조회 API', description: '식당 목록을 조회한다.' })
   @ApiCreatedResponse({description: '목록 조회 결과', type: Restaurant, isArray: true})
-  async findAll() {
-    return await this.restaurantService.findAll();
+  async findAll(
+    @Req() { user }: RequestWithUser,
+  ) {
+    return await this.restaurantService.findAll(user);
   }
 
   @Get(':id')

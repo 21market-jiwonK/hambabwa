@@ -3,13 +3,14 @@ import {ViewColumn, ViewEntity} from "typeorm";
 @ViewEntity('v_menu_with_categories', {
     expression: `
         SELECT M.id AS menuId
-            , M.foodTitle AS title
+            , M.foodTitle AS foodTitle
             , M.imageUrl AS menuImage
             , C2.title AS subTitle
             , M.calorie AS calorie
             , C3.title AS categoryDepth1
             , C1.title AS categoryDepth2
             , C.title AS categoryDepth3
+            , C.menuCategoryCode AS menuCategoryCode
         FROM menu M
             LEFT JOIN category C ON C.code = M.categoryCode
             LEFT JOIN category C1 ON C1.code = C.parentCode
@@ -23,23 +24,26 @@ export class ViewMenuWithCategories {
     menuId: number;
 
     @ViewColumn()
-    title: number;
+    foodTitle: string;
 
     @ViewColumn()
-    menuImage: number;
+    menuImage: string;
 
     @ViewColumn()
-    subTitle: number;
+    subTitle: string;
 
     @ViewColumn()
-    calorie: number;
+    calorie: string;
 
     @ViewColumn()
-    categoryDepth1: number;
+    categoryDepth1: string;
 
     @ViewColumn()
-    categoryDepth2: number;
+    categoryDepth2: string;
 
     @ViewColumn()
-    categoryDepth3: number;
+    categoryDepth3: string;
+
+    @ViewColumn()
+    menuCategoryCode: string;
 }
