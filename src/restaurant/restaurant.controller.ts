@@ -34,7 +34,7 @@ export class RestaurantController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles("admin")
-  @UseInterceptors(FileInterceptor('_imageUrl'))
+  @UseInterceptors(FileInterceptor('imageUrl'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '식당 생성 API', description: '식당을 생성 한다.' })
   @ApiCreatedResponse({description: '생성 결과'})
