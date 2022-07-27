@@ -43,4 +43,6 @@ export class Restaurant extends BaseEntity {
 
     @Column()
     public lunchPrice: number;
+
+    public hasCommented: boolean;
 }

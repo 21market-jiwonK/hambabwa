@@ -23,6 +23,7 @@ import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import { RequestWithUser } from 'src/user/entities/user.entity';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorator/roles.decorators';
+import {ResponseRestaurantDto} from "./dto/response-restaurant.dto";
 
 @Controller('restaurant')
 @ApiTags('Restaurant CRUD Api')
@@ -62,7 +63,7 @@ export class RestaurantController {
   async findOne(
     @Req() { user }: RequestWithUser,
     @Param('id') id: number
-  ): Promise<Restaurant> {
+  ): Promise<ResponseRestaurantDto> {
     return await this.restaurantService.findOne(id, user);
   }
 

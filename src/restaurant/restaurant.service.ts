@@ -16,6 +16,7 @@ import {CreateCommentDto} from "./dto/create-comment.dto";
 import {UpdateCommentDto} from "./dto/update-comment.dto";
 import {User} from "../user/entities/user.entity";
 import {Priority} from "./Priority";
+import {ResponseRestaurantDto} from "./dto/response-restaurant.dto";
 
 @Injectable()
 export class RestaurantService {
@@ -70,18 +71,26 @@ export class RestaurantService {
     return orderedRestaurants;
   }
 
-  async findOne(id: number, user?: User): Promise<Restaurant> {
-    return await this.restaurantRepository.createQueryBuilder('restaurant')
+  async findOne(id: number, user?: User): Promise<ResponseRestaurantDto> {
+    const restaurant = await this.restaurantRepository.createQueryBuilder('restaurant')
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
         .leftJoinAndSelect('restaurant.comments', 'comment')
         .leftJoin('comment.writer', 'writer')
         .addSelect(['writer.nickname', 'writer.email'])
+        // .addSelect(`CASE(writer.nickname) WHEN '${user?.nickname}' THEN TRUE ELSE FALSE END`, 'hasCommented')
         .leftJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory','menusWithCategory.menuId = menus.menuId')
         .leftJoin('user_favorites_menu', 'userFavorite', (user) ? 'userFavorite.userId = :userId and menusWithCategory.menuId = userFavorite.menuId': 'true', {userId: user?.id})
         .leftJoinAndMapOne('menusWithCategory.isFavorite', 'user', 'user', 'user.id = userFavorite.userId')
         .where('restaurant.id = :id', {id})
-        .getOne()
+        .getOne();
+
+    const response = new ResponseRestaurantDto(restaurant);
+    if (response.comments?.length) {
+      const comments = response.comments;
+      response.hasCommented = !!(comments.find(({ writer }) => writer?.email === user?.email));
+    }
+    return response;
   }
 
   async update(id: number, { menuIds, ...adminInput }: UpdateRestaurantDto, file: Express.Multer.File): Promise<Restaurant> {
