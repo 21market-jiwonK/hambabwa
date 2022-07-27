@@ -56,12 +56,14 @@ export class RestaurantController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({summary: '식당 상세 정보 조회 API', description: '식당 상세 정보를 조회한다.'})
   @ApiCreatedResponse({ description: '조회 결과', type: Restaurant })
   async findOne(
+    @Req() { user }: RequestWithUser,
     @Param('id') id: number
   ): Promise<Restaurant> {
-    return await this.restaurantService.findOne(id);
+    return await this.restaurantService.findOne(id, user);
   }
 
   @Patch(':id')

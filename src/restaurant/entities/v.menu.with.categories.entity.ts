@@ -11,12 +11,15 @@ import {ViewColumn, ViewEntity} from "typeorm";
             , C1.title AS categoryDepth2
             , C.title AS categoryDepth3
             , C.menuCategoryCode AS menuCategoryCode
+            , R.id AS restaurantId
+            , NULL AS isFavorite
         FROM menu M
             LEFT JOIN category C ON C.code = M.categoryCode
             LEFT JOIN category C1 ON C1.code = C.parentCode
             LEFT JOIN category C2 ON C2.code = C1.parentCode
             LEFT JOIN category C3 ON C3.code = C2.parentCode
             INNER JOIN restaurants_menus RM ON RM.menuId = M.id
+            INNER JOIN restaurant R ON RM.restaurantId = R.id
     `
 })
 export class ViewMenuWithCategories {
@@ -46,4 +49,10 @@ export class ViewMenuWithCategories {
 
     @ViewColumn()
     menuCategoryCode: string;
+
+    @ViewColumn()
+    restaurantId: number;
+
+    @ViewColumn()
+    isFavorite: boolean;
 }

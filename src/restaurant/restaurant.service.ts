@@ -70,14 +70,16 @@ export class RestaurantService {
     return orderedRestaurants;
   }
 
-  async findOne(id: number): Promise<Restaurant> {
+  async findOne(id: number, user?: User): Promise<Restaurant> {
     return await this.restaurantRepository.createQueryBuilder('restaurant')
         .distinct(true)
         .innerJoin('restaurants_menus', 'menus', 'menus.restaurantId = restaurant.id')
         .leftJoinAndSelect('restaurant.comments', 'comment')
         .leftJoin('comment.writer', 'writer')
         .addSelect(['writer.nickname', 'writer.email'])
-        .innerJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory', 'menusWithCategory.menuId = menus.menuId')
+        .leftJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory','menusWithCategory.menuId = menus.menuId')
+        .leftJoin('user_favorites_menu', 'userFavorite', (user) ? 'userFavorite.userId = :userId and menusWithCategory.menuId = userFavorite.menuId': 'true', {userId: user?.id})
+        .leftJoinAndMapOne('menusWithCategory.isFavorite', 'user', 'user', 'user.id = userFavorite.userId')
         .where('restaurant.id = :id', {id})
         .getOne()
   }
@@ -109,6 +111,11 @@ export class RestaurantService {
   }
 
   async createComment({ restaurantId, writer, ...userInput }: CreateCommentDto):Promise<Comment> {
+    const lastComment: Comment = await this.commentRepository.findOne({writer});
+    if (lastComment) {
+      throw new HttpException('이미 작성한 후기가 존재합니다.', HttpStatus.BAD_REQUEST);
+    }
+
     const newComment = await this.commentRepository.create({
       ...userInput,
       restaurant: { id: restaurantId },
