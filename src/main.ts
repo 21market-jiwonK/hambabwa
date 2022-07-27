@@ -20,13 +20,25 @@ async function bootstrap() {
     transform: true
   }));
   app.setGlobalPrefix('api');
+
+  const whiteLists = ['https://test.hambabwa.kr:3000', 'http://localhost:3000', 'https://hambabwa.kr']
   app.enableCors({
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    origin: true,
+    //origin: (process.env.NODE_ENV === 'development' ? true : configService.get('ACCESS_CONTROL_ALLOW_ORIGINS')),
+    //origin: true,
+    origin: function (origin, callback) {
+      if (whiteLists.indexOf(origin) !== -1) {
+        console.log("allowed cors for::", origin);
+        callback(null, true);
+      } else {
+        console.log("blocked cors for::", origin);
+        //callback(new Error('Not allowed by CORS'));
+        callback(null, true);
+      }
+    },
     credentials: true,
     exposedHeaders: 'Authorization',
   });
-
   const configBuilder = new DocumentBuilder()
       .setTitle('강남함바 ^_^?')
       .setDescription('hambabwa API')
