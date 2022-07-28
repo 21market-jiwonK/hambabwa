@@ -8,7 +8,6 @@ import {MyList, SearchMyDto} from "./dto/search-my.dto";
 import {CreateFavoritesDto} from "./dto/create-favorites.dto";
 import {MenuService} from "../menu/menu.service";
 import {UpdateFavoritesDto} from "./dto/update-favorites.dto";
-import {ToggleType} from "../common/enums/toggle.type.enum";
 import { CommonService } from "src/common/common.service";
 import { ConfigService } from "@nestjs/config";
 import { UpdateUsersDto } from "./dto/update-users.dto";
@@ -114,17 +113,16 @@ export class UserService {
   }
 
   async updateFavorites(updateFavoritesDto: UpdateFavoritesDto): Promise<User> {
-    const { user, menuId, type } = updateFavoritesDto;
+    const { user, menuId } = updateFavoritesDto;
     let { favorites } = await this.findMyFavorites(user.id);
-    switch (type) {
-      case ToggleType.OFF:
-        favorites = favorites.filter(({ id }) => id !== menuId);
-        break;
-      case ToggleType.ON:
-        const [newFavorite]: Menu[] = await this.menuService.findMenusByIds([menuId]);
-        favorites.push(newFavorite);
-        break;
+    const isExist = favorites.find(({ id }) => id === menuId);
+    if (isExist)
+      favorites = favorites.filter(({ id }) => id !== menuId);
+    else {
+      const [newFavorite] = await this.menuService.findMenusByIds([menuId]);
+      favorites.push(newFavorite);
     }
+
     const userWithFavorites = this.userRepository.create({
       id: user.id,
       favorites

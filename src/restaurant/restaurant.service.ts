@@ -79,7 +79,7 @@ export class RestaurantService {
         .leftJoin('comment.writer', 'writer')
         .addSelect(['writer.nickname', 'writer.email'])
         // .addSelect(`CASE(writer.nickname) WHEN '${user?.nickname}' THEN TRUE ELSE FALSE END`, 'hasCommented')
-        .leftJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory','menusWithCategory.menuId = menus.menuId')
+        .leftJoinAndMapMany('restaurant.menus', 'v_menu_with_categories', 'menusWithCategory','menusWithCategory.menuId = menus.menuId and menusWithCategory.restaurantId = restaurant.id')
         .leftJoin('user_favorites_menu', 'userFavorite', (user) ? 'userFavorite.userId = :userId and menusWithCategory.menuId = userFavorite.menuId': 'true', {userId: user?.id})
         .leftJoinAndMapOne('menusWithCategory.isFavorite', 'user', 'user', 'user.id = userFavorite.userId')
         .where('restaurant.id = :id', {id})

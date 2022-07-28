@@ -32,7 +32,6 @@ async function bootstrap() {
         callback(null, true);
       } else {
         console.log("blocked cors for::", origin);
-        //callback(new Error('Not allowed by CORS'));
         callback(null, true);
       }
     },
@@ -46,7 +45,7 @@ async function bootstrap() {
       .addTag('hamba')
       .addBearerAuth(
           { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-          'access-token',
+          'Authentication',
       )
       .build();
 

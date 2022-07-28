@@ -7,7 +7,7 @@ import { Request } from "express";
 import { Payload } from "src/user/entities/user.entity";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UserService
@@ -25,6 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: Payload) {
     const user = await this.userService.findUserById(payload.sub);
+    console.log('payload:::::::', payload);
     if (!user) {
       throw new UnauthorizedException();
     }
