@@ -11,6 +11,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import {APP_INTERCEPTOR} from "@nestjs/core";
 import {ClassToPlainInterceptor} from "./common/interceptors/ClassToPlain.interceptor";
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import {ClassToPlainInterceptor} from "./common/interceptors/ClassToPlain.interc
     CategoryModule,
     AuthModule,
     UserModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

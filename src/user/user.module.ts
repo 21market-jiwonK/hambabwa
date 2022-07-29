@@ -4,11 +4,13 @@ import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import {MenuModule} from "../menu/menu.module";
+import {MailModule} from "../mail/mail.module";
 
 @Module({
   imports: [
       TypeOrmModule.forFeature([User]),
       MenuModule,
+      MailModule,
   ],
   controllers: [UserController],
   providers: [UserService],

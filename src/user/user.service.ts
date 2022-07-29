@@ -12,6 +12,7 @@ import { CommonService } from "src/common/common.service";
 import { ConfigService } from "@nestjs/config";
 import { UpdateUsersDto } from "./dto/update-users.dto";
 import {Menu} from "../menu/entities/menu.entity";
+import {MailService} from "../mail/mail.service";
 
 @Injectable()
 export class UserService {
@@ -20,12 +21,14 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     private readonly menuService: MenuService,
     private readonly configService: ConfigService,
-    private readonly commonService: CommonService
+    private readonly commonService: CommonService,
+    private readonly mailService: MailService,
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
     user.password = bcrypt.hashSync(user.password, 10);
+    await this.mailService.sendUserWelcomeMail(user);
     return await this.userRepository.save(user);
   }
 
