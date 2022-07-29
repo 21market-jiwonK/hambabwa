@@ -137,7 +137,7 @@ export class RestaurantService {
 
   async updateStars(id: number): Promise<void> {
     const { comments } = await this.findOne(id);
-    const avgStars: number | null = (comments.length) ? this.calculateStars(comments) : null;
+    const avgStars: number | null = (comments?.length) ? this.calculateStars(comments) : null;
     await this.restaurantRepository.update(id, {stars: avgStars});
   }
 
