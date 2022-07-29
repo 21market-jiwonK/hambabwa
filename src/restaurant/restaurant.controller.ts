@@ -119,11 +119,13 @@ export class RestaurantController {
   }
 
   @Delete('comment/:id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '코멘트 삭제 API', description: '코멘트를 삭제한다.' })
   @ApiCreatedResponse({description: '삭제 결과'})
   async removeComment(
+    @Req() { user }: RequestWithUser,
     @Param('id') id: number,
   ): Promise<DeleteResult> {
-    return await this.restaurantService.removeComment(id);
+    return await this.restaurantService.removeComment(id, user);
   }
 }

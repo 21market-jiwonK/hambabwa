@@ -137,7 +137,7 @@ export class RestaurantService {
 
   async updateStars(id: number): Promise<void> {
     const { comments } = await this.findOne(id);
-    const avgStars = this.calculateStars(comments);
+    const avgStars: number | null = (comments.length) ? this.calculateStars(comments) : null;
     await this.restaurantRepository.update(id, {stars: avgStars});
   }
 
@@ -150,9 +150,7 @@ export class RestaurantService {
 
   async updateComment(id: number, { writer, ...userInput }: UpdateCommentDto): Promise<Comment> {
     const oldComment = await this.commentRepository.findOne(id, {relations: ['restaurant', 'writer']});
-    if (oldComment.writer.email !== writer.email) {
-      throw new HttpException('작성자만 수정 가능합니다.', HttpStatus.BAD_REQUEST);
-    }
+    if (oldComment.writer.email !== writer.email) throw new HttpException('작성자만 수정 가능합니다.', HttpStatus.BAD_REQUEST);
 
     const newComment = await this.commentRepository.create({
       id,
@@ -163,7 +161,12 @@ export class RestaurantService {
     return newComment;
   }
 
-  async removeComment(id: number): Promise<DeleteResult> {
-    return await this.commentRepository.delete(id);
+  async removeComment(commentId: number, user: User): Promise<DeleteResult> {
+    const { id, writer, restaurant } = await this.commentRepository.findOne(commentId, {relations: ['restaurant', 'writer']});
+    if (writer.email !== user.email) throw new HttpException('작성자만 삭제 가능합니다.', HttpStatus.BAD_REQUEST);
+
+    const deleteResult = await this.commentRepository.delete(id);
+    await this.updateStars(restaurant.id);
+    return deleteResult;
   }
 }
