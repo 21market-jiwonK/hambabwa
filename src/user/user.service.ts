@@ -96,6 +96,7 @@ export class UserService {
     return await this.userRepository.createQueryBuilder('my')
         .where('my.id = :id', {id})
         .leftJoinAndSelect('my.comments', 'comments')
+        .leftJoinAndSelect('comments.restaurant', 'restaurant')
         .getOne();
   }
 
