@@ -10,10 +10,9 @@ export class MailService {
 
     async sendUserWelcomeMail(user: User): Promise<void> {
         try {
-            console.log(user);
             await this.mailerService.sendMail({
                 to: user.email,
-                subject: '강남함바 가입을 축하드립니다!',
+                subject: `${user.nickname}님, 강남함바 가입을 축하드립니다!`,
                 template: './confirmation',
                 context: {
                     name: user.nickname,
